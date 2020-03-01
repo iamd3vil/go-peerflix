@@ -51,6 +51,7 @@ type ClientConfig struct {
 	Seed           bool
 	TCP            bool
 	MaxConnections int
+	DataDir        string
 }
 
 // NewClientConfig creates a new default configuration.
@@ -61,6 +62,7 @@ func NewClientConfig() ClientConfig {
 		Seed:           false,
 		TCP:            true,
 		MaxConnections: 200,
+		DataDir:        getCurrentDir(),
 	}
 }
 
@@ -74,7 +76,7 @@ func NewClient(cfg ClientConfig) (client Client, err error) {
 
 	blocklist := getBlocklist()
 	torrentConfig := torrent.NewDefaultClientConfig()
-	torrentConfig.DataDir = os.TempDir()
+	torrentConfig.DataDir = cfg.DataDir
 	torrentConfig.NoUpload = !cfg.Seed
 	torrentConfig.DisableTCP = !cfg.TCP
 	torrentConfig.ListenPort = cfg.TorrentPort
@@ -333,4 +335,9 @@ func downloadFile(URL string) (fileName string, err error) {
 	_, err = io.Copy(file, response.Body)
 
 	return file.Name(), err
+}
+
+func getCurrentDir() string {
+	dir, _ := os.Getwd()
+	return dir
 }
